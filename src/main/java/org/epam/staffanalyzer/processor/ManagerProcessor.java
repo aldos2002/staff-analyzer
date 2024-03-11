@@ -3,7 +3,7 @@ package org.epam.staffanalyzer.processor;
 import org.epam.staffanalyzer.entity.Employee;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,7 +13,7 @@ public class ManagerProcessor {
     private static final double MAX_SALARY_PERCENTAGE = 0.5;
     private static final int MAX_REPORTING_LINES = 4;
     private final Map<Integer, Employee> employees;
-    private final Map<Employee, List<Employee>> managerMap = new HashMap<>();
+    private final Map<Employee, List<Employee>> managerMap = new LinkedHashMap<>();
 
     private final List<String> underPaidManagers = new ArrayList<>();
     private final List<String> overPaidManagers = new ArrayList<>();
@@ -43,10 +43,13 @@ public class ManagerProcessor {
             int managerId = employee.getManagerId();
             if (managerId == -1) {
                 ceoId = employee.getId();
-            } else if (managerId != ceoId) {
+            } else {
                 Employee manager = employees.get(managerId);
-                employee.setManagerLineLength(manager.getManagerLineLength() + 1);
                 managerMap.computeIfAbsent(manager, k -> new ArrayList<>()).add(employee);
+
+                if (managerId != ceoId) {
+                    employee.setManagerLineLength(manager.getManagerLineLength() + 1);
+                }
             }
         }
     }
