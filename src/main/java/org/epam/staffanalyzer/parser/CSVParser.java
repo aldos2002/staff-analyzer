@@ -4,8 +4,8 @@ import org.epam.staffanalyzer.entity.Employee;
 import org.epam.staffanalyzer.exception.CSVFormatException;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class CSVParser {
@@ -16,7 +16,8 @@ public class CSVParser {
 
     private List<String> readLines(String filename) throws IOException {
         List<String> result = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                Objects.requireNonNull(getClass().getResourceAsStream("/" + filename))))) {
             String line;
             while ((line = br.readLine()) != null) {
                 result.add(line);

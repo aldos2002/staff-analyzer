@@ -1,4 +1,17 @@
 # staff-analyzer
+## Assumptions
+Main assumption is that employees are sorted. First is the CEO, then comes manager and manager's subordinates.
+So the situation where subordinate comes before subordinate's manager is impossible.
+
+## Usage instructions
+Put csv file into resources folder and run the app. The result will appear in console in three sections:
+- Underpaid managers
+- Overpaid managers
+- Employees with too many managers
+
+
+## Task Description
+
 BIG COMPANY is employing a lot of employees. Company would like to analyze its organizational
 structure and identify potential improvements. Board wants to make sure that every manager earns
 at least 20% more than the average salary of its direct subordinates, but no more than 50% more
