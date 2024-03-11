@@ -3,7 +3,7 @@
 Main assumption is that employees are sorted. First is the CEO, then comes manager and manager's subordinates.
 So the situation where subordinate comes before subordinate's manager is impossible.
 
-## Usage instructions
+## Usage Instructions
 Put csv file into resources folder and run the app. The result will appear in console in three sections:
 - Underpaid managers
 - Overpaid managers

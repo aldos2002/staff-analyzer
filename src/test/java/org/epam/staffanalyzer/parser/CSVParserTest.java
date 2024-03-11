@@ -19,7 +19,7 @@ class CSVParserTest {
 
         Map<Integer, Employee> employees = parser.readEmployeesFromFile("employees.csv");
 
-        assertEquals(5, employees.size());
+        assertEquals(9, employees.size());
     }
 
     @Test
