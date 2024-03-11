@@ -1,4 +1,6 @@
 Id,firstName,lastName,salary,managerId
+308,John,Dorian,55000,307
+309,Salvatore,Leone,56000,308
 123,Joe,Doe,60000,
 124,Martin,Chekov,45000,123
 125,Bob,Ronstad,47000,123
@@ -6,5 +8,3 @@ Id,firstName,lastName,salary,managerId
 305,Brett,Hardleaf,34000,300
 306,Eddie,Vanhalen,48000,305
 307,Maggie,Willson,52000,306
-308,John,Dorian,55000,307
-309,Salvatore,Leone,56000,308
