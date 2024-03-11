@@ -1,7 +1,6 @@
 # staff-analyzer
 ## Assumptions
-Main assumption is that employees are sorted. First is the CEO, then comes manager and manager's subordinates.
-So the situation where subordinate comes before subordinate's manager is impossible.
+Hierarchical sorting of employees in CSV is not mandatory. Recursion is used to calculate manager line length.
 
 ## Usage Instructions
 Put csv file into resources folder and run the app. The result will appear in console in three sections:

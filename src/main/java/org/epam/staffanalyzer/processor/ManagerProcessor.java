@@ -19,8 +19,6 @@ public class ManagerProcessor {
     private final List<String> overPaidManagers = new ArrayList<>();
     private List<String> tooLongReportingLineEmployees = new ArrayList<>();
 
-    private int ceoId;
-
     public ManagerProcessor(Map<Integer, Employee> employees) {
         this.employees = employees;
         initManagerMap();
@@ -41,15 +39,9 @@ public class ManagerProcessor {
     private void initManagerMap() {
         for (Employee employee : employees.values()) {
             int managerId = employee.getManagerId();
-            if (managerId == -1) {
-                ceoId = employee.getId();
-            } else {
+            if (managerId != -1) {
                 Employee manager = employees.get(managerId);
                 managerMap.computeIfAbsent(manager, k -> new ArrayList<>()).add(employee);
-
-                if (managerId != ceoId) {
-                    employee.setManagerLineLength(manager.getManagerLineLength() + 1);
-                }
             }
         }
     }
@@ -59,6 +51,10 @@ public class ManagerProcessor {
             Employee manager = entry.getKey();
             int managerId = manager.getId();
             List<Employee> subordinates = entry.getValue();
+
+            if (entry.getKey().getManagerId() != -1) {
+                recursiveManagerLineLengthIncrement(entry.getValue(), managerMap);
+            }
 
             double averageSalary = calculateAverageDirectSubordinateSalary(subordinates);
             double managerSalary = manager.getSalary();
@@ -77,6 +73,19 @@ public class ManagerProcessor {
                 .map(employee -> String.format("Employee %d has a reporting line that is too long.", employee.getId()))
                 .collect(Collectors.toList());
     }
+
+    private void recursiveManagerLineLengthIncrement(List<Employee> employees,
+                                                     Map<Employee, List<Employee>> managerMap) {
+        for (Employee employee : employees) {
+            employee.setManagerLineLength(employee.getManagerLineLength() + 1);
+            List<Employee> subordinates = managerMap.get(employee);
+
+            if (subordinates != null) {
+                recursiveManagerLineLengthIncrement(subordinates, managerMap);
+            }
+        }
+    }
+
 
     private static double calculateAverageDirectSubordinateSalary(List<Employee> employees) {
         return employees.stream()
