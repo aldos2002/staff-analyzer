@@ -1,23 +1,19 @@
 package org.epam.staffanalyzer.processor;
 
 import org.epam.staffanalyzer.entity.Employee;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ManagerProcessor {
     private static final double MIN_SALARY_PERCENTAGE = 0.2;
     private static final double MAX_SALARY_PERCENTAGE = 0.5;
-
+    private static final int MAX_REPORTING_LINES = 4;
     List<Employee> employees;
     Map<Integer, List<Employee>> managerMap = new HashMap<>();
 
     List<String> underPaidManagers = new ArrayList<>();
     List<String> overPaidManagers = new ArrayList<>();
+    List<String> tooLongReportingLineEmployees = new ArrayList<>();
 
     public ManagerProcessor(List<Employee> employees) {
         this.employees = employees;
@@ -30,6 +26,10 @@ public class ManagerProcessor {
 
     public List<String> getOverPaidManagers() {
         return overPaidManagers;
+    }
+
+    public List<String> getTooLongReportingLineEmployees() {
+        return tooLongReportingLineEmployees;
     }
 
     private void initManagerMap() {
@@ -57,6 +57,12 @@ public class ManagerProcessor {
                         ((managerSalary - averageSalary) - (MAX_SALARY_PERCENTAGE * averageSalary))));
             }
         }
+
+        Set<Integer> tooLongReportingLines = findEmployeesWithLongReportingLines(employees);
+        for (int employeeId : tooLongReportingLines) {
+            tooLongReportingLineEmployees.add(String.format("Employee %d has a reporting line that is too long.",
+                    employeeId));
+        }
     }
 
     private static double calculateAverageSubordinateSalary(List<Employee> employees) {
@@ -74,5 +80,34 @@ public class ManagerProcessor {
             }
         }
         return 0;
+    }
+
+    private static Set<Integer> findEmployeesWithLongReportingLines(List<Employee> employees) {
+        Set<Integer> tooLongReportingLines = new HashSet<>();
+        Map<Integer, Integer> reportingLineLengths = new HashMap<>();
+        for (Employee employee : employees) {
+            int length = 0;
+            int managerId = employee.getManagerId();
+            while (managerId != -1) {
+                length++;
+                managerId = findManagerById(employees, managerId).getManagerId();
+            }
+            reportingLineLengths.put(employee.getId(), length);
+        }
+        for (Map.Entry<Integer, Integer> entry : reportingLineLengths.entrySet()) {
+            if (entry.getValue() > MAX_REPORTING_LINES) {
+                tooLongReportingLines.add(entry.getKey());
+            }
+        }
+        return tooLongReportingLines;
+    }
+
+    private static Employee findManagerById(List<Employee> employees, int managerId) {
+        for (Employee employee : employees) {
+            if (employee.getId() == managerId) {
+                return employee;
+            }
+        }
+        return null;
     }
 }

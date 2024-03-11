@@ -40,5 +40,11 @@ public class StaffAnalyzer {
         for (String overPaidManger : managerProcessor.getOverPaidManagers()) {
             System.out.println(overPaidManger);
         }
+
+        System.out.println();
+        System.out.println("-----EMPLOYEES WITH TOO MANY MANAGERS-----");
+        for (String employee : managerProcessor.getTooLongReportingLineEmployees()) {
+            System.out.println(employee);
+        }
     }
 }
