@@ -6,7 +6,7 @@ import org.epam.staffanalyzer.parser.CSVParser;
 import org.epam.staffanalyzer.processor.ManagerProcessor;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
 public class StaffAnalyzer {
 
@@ -14,7 +14,7 @@ public class StaffAnalyzer {
         CSVParser parser = new CSVParser();
 
         try {
-            List<Employee> employees = parser.readEmployeesFromFile("employees.csv");
+            Map<Integer, Employee> employees = parser.readEmployeesFromFile("employees.csv");
 
             ManagerProcessor managerProcessor = new ManagerProcessor(employees);
             managerProcessor.analyzeManagerSalary();

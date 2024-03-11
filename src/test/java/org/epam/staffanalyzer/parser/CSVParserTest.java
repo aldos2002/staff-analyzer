@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,7 +17,7 @@ class CSVParserTest {
     void readEmployeesFromFile() throws Exception {
         CSVParser parser = new CSVParser();
 
-        List<Employee> employees = parser.readEmployeesFromFile("employees.csv");
+        Map<Integer, Employee> employees = parser.readEmployeesFromFile("employees.csv");
 
         assertEquals(5, employees.size());
     }

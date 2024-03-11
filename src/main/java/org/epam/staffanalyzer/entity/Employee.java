@@ -1,11 +1,12 @@
 package org.epam.staffanalyzer.entity;
 
 public class Employee {
-    private int id;
-    private String firstName;
-    private String lastName;
-    private double salary;
-    private int managerId;
+    private final int id;
+    private final String firstName;
+    private final String lastName;
+    private final double salary;
+    private final int managerId;
+    private int managerLineLength;
 
     public Employee(int id, String firstName, String lastName, double salary, int managerId) {
         this.id = id;
@@ -33,5 +34,13 @@ public class Employee {
 
     public int getManagerId() {
         return managerId;
+    }
+
+    public int getManagerLineLength() {
+        return managerLineLength;
+    }
+
+    public void setManagerLineLength(int managerLineLength) {
+        this.managerLineLength = managerLineLength;
     }
 }

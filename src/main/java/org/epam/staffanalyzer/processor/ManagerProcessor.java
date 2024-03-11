@@ -2,20 +2,26 @@ package org.epam.staffanalyzer.processor;
 
 import org.epam.staffanalyzer.entity.Employee;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ManagerProcessor {
     private static final double MIN_SALARY_PERCENTAGE = 0.2;
     private static final double MAX_SALARY_PERCENTAGE = 0.5;
     private static final int MAX_REPORTING_LINES = 4;
-    List<Employee> employees;
-    Map<Integer, List<Employee>> managerMap = new HashMap<>();
+    private final Map<Integer, Employee> employees;
+    private final Map<Employee, List<Employee>> managerMap = new HashMap<>();
 
-    List<String> underPaidManagers = new ArrayList<>();
-    List<String> overPaidManagers = new ArrayList<>();
-    List<String> tooLongReportingLineEmployees = new ArrayList<>();
+    private final List<String> underPaidManagers = new ArrayList<>();
+    private final List<String> overPaidManagers = new ArrayList<>();
+    private List<String> tooLongReportingLineEmployees = new ArrayList<>();
 
-    public ManagerProcessor(List<Employee> employees) {
+    private int ceoId;
+
+    public ManagerProcessor(Map<Integer, Employee> employees) {
         this.employees = employees;
         initManagerMap();
     }
@@ -33,21 +39,26 @@ public class ManagerProcessor {
     }
 
     private void initManagerMap() {
-        for (Employee employee : employees) {
+        for (Employee employee : employees.values()) {
             int managerId = employee.getManagerId();
-            if (managerId != -1) {
-                managerMap.computeIfAbsent(managerId, k -> new ArrayList<>()).add(employee);
+            if (managerId == -1) {
+                ceoId = employee.getId();
+            } else if (managerId != ceoId) {
+                Employee manager = employees.get(managerId);
+                employee.setManagerLineLength(manager.getManagerLineLength() + 1);
+                managerMap.computeIfAbsent(manager, k -> new ArrayList<>()).add(employee);
             }
         }
     }
 
     public void analyzeManagerSalary() {
-        for (Map.Entry<Integer, List<Employee>> entry : managerMap.entrySet()) {
-            int managerId = entry.getKey();
+        for (Map.Entry<Employee, List<Employee>> entry : managerMap.entrySet()) {
+            Employee manager = entry.getKey();
+            int managerId = manager.getId();
             List<Employee> subordinates = entry.getValue();
 
-            double averageSalary = calculateAverageSubordinateSalary(subordinates);
-            double managerSalary = findManagerSalary(employees, managerId);
+            double averageSalary = calculateAverageDirectSubordinateSalary(subordinates);
+            double managerSalary = manager.getSalary();
 
             if (managerSalary - averageSalary < MIN_SALARY_PERCENTAGE * averageSalary) {
                 underPaidManagers.add(String.format("Manager %d earns less than they should by %.1f", managerId,
@@ -58,56 +69,16 @@ public class ManagerProcessor {
             }
         }
 
-        Set<Integer> tooLongReportingLines = findEmployeesWithLongReportingLines(employees);
-        for (int employeeId : tooLongReportingLines) {
-            tooLongReportingLineEmployees.add(String.format("Employee %d has a reporting line that is too long.",
-                    employeeId));
-        }
+        tooLongReportingLineEmployees = employees.values().stream()
+                .filter(employee -> employee.getManagerLineLength() > MAX_REPORTING_LINES)
+                .map(employee -> String.format("Employee %d has a reporting line that is too long.", employee.getId()))
+                .collect(Collectors.toList());
     }
 
-    private static double calculateAverageSubordinateSalary(List<Employee> employees) {
-        double totalSalary = 0;
-        for (Employee employee : employees) {
-            totalSalary += employee.getSalary();
-        }
-        return totalSalary / employees.size();
-    }
-
-    private static double findManagerSalary(List<Employee> employees, int managerId) {
-        for (Employee employee : employees) {
-            if (employee.getId() == managerId) {
-                return employee.getSalary();
-            }
-        }
-        return 0;
-    }
-
-    private static Set<Integer> findEmployeesWithLongReportingLines(List<Employee> employees) {
-        Set<Integer> tooLongReportingLines = new HashSet<>();
-        Map<Integer, Integer> reportingLineLengths = new HashMap<>();
-        for (Employee employee : employees) {
-            int length = 0;
-            int managerId = employee.getManagerId();
-            while (managerId != -1) {
-                length++;
-                managerId = findManagerById(employees, managerId).getManagerId();
-            }
-            reportingLineLengths.put(employee.getId(), length);
-        }
-        for (Map.Entry<Integer, Integer> entry : reportingLineLengths.entrySet()) {
-            if (entry.getValue() > MAX_REPORTING_LINES) {
-                tooLongReportingLines.add(entry.getKey());
-            }
-        }
-        return tooLongReportingLines;
-    }
-
-    private static Employee findManagerById(List<Employee> employees, int managerId) {
-        for (Employee employee : employees) {
-            if (employee.getId() == managerId) {
-                return employee;
-            }
-        }
-        return null;
+    private static double calculateAverageDirectSubordinateSalary(List<Employee> employees) {
+        return employees.stream()
+                .mapToDouble(Employee::getSalary)
+                .average()
+                .orElse(0);
     }
 }
